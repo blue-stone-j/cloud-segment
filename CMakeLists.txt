@@ -24,3 +24,9 @@ target_link_libraries(euclidean_cluster ${common_lib})
 
 add_executable(linefit_ground_segmentation test/linefit_ground_segmentation_node.cpp src/linefit_ground_segmentation.cpp)
 target_link_libraries(linefit_ground_segmentation ${common_lib})
+
+add_executable(ray_ground_filter test/ray_ground_filter_node.cpp src/ray_ground_filter.cpp)
+target_link_libraries(ray_ground_filter ${common_lib})
+
+add_executable(ring_ground_filter test/ring_ground_filter_node.cpp src/ring_ground_filter.cpp)
+target_link_libraries(ring_ground_filter ${common_lib})

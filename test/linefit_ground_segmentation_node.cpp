@@ -4,7 +4,7 @@
 
 int main( )
 {
-  std::string cloud_file;
+  std::string cloud_file = "../assets/cloud/slope.pcd";
   pcl::PointCloud<pcl::PointXYZ> cloud;
   pcl::io::loadPCDFile(cloud_file, cloud);
   GroundSegmentationParams params;
