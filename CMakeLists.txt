@@ -26,7 +26,20 @@ add_executable(linefit_ground_segmentation test/linefit_ground_segmentation_node
 target_link_libraries(linefit_ground_segmentation ${common_lib})
 
 add_executable(ray_ground_filter test/ray_ground_filter_node.cpp src/ray_ground_filter.cpp)
-target_link_libraries(ray_ground_filter ${common_lib})
+target_compile_options(ray_ground_filter PRIVATE ${OpenMP_CXX_FLAGS})
+target_link_libraries(ray_ground_filter ${common_lib} ${OpenMP_CXX_FLAGS})
 
 add_executable(ring_ground_filter test/ring_ground_filter_node.cpp src/ring_ground_filter.cpp)
 target_link_libraries(ring_ground_filter ${common_lib})
+
+add_executable(patchworkpp test/patchworkpp_node.cpp src/patchworkpp.cpp)
+target_compile_options(patchworkpp PRIVATE
+
+  # some varibles never be used, compiler will throw warn. This can depress these warns.
+  $<$<CXX_COMPILER_ID:GNU>:-Wno-unused-variable>
+  $<$<CXX_COMPILER_ID:Clang>:-Wno-unused-variable>
+
+  $<$<CXX_COMPILER_ID:GNU>:-Wno-unused-but-set-variable>
+  $<$<CXX_COMPILER_ID:Clang>:-Wno-unused-but-set-variable>
+)
+target_link_libraries(patchworkpp ${common_lib})

@@ -28,11 +28,11 @@ struct PointXYZ
 
 struct RevertCandidate
 {
-  int              concentric_idx;
-  int              sector_idx;
-  double           ground_flatness;
-  double           line_variable;
-  Eigen::VectorXf  pc_mean;
+  int concentric_idx;
+  int sector_idx;
+  double ground_flatness;
+  double line_variable;
+  Eigen::VectorXf pc_mean;
   vector<PointXYZ> regionwise_ground;
 
   RevertCandidate(int _c_idx, int _s_idx, double _flatness, double _line_var, Eigen::VectorXf _pc_mean, vector<PointXYZ> _ground) :
@@ -50,7 +50,7 @@ struct Params
 
   int num_iter;
   int num_lpr;
-  int num_min_pts;
+  size_t num_min_pts;
   int num_zones;
   int num_rings_of_interest;
 
@@ -77,7 +77,7 @@ struct Params
   vector<double> elevation_thr;
   vector<double> flatness_thr;
 
-  Params()
+  Params( )
   {
     verbose     = false; // control whether output info to display
     enable_RNR  = true;  // function switch
@@ -118,7 +118,7 @@ class PatchWorkpp
 {
  public:
   typedef std::vector<vector<PointXYZ>> Ring;
-  typedef std::vector<Ring>             Zone;
+  typedef std::vector<Ring> Zone;
 
   PatchWorkpp(patchwork::Params _params) :
     params_(_params)
@@ -158,29 +158,29 @@ class PatchWorkpp
   // main/entry function; cloud_in have 4 columns(x,y,z,intesity)
   void estimateGround(Eigen::MatrixXf cloud_in);
 
-  double getHeight()
+  double getHeight( )
   {
     return params_.sensor_height;
   }
-  double getTimeTaken()
+  double getTimeTaken( )
   {
     return time_taken_;
   }
 
-  Eigen::MatrixX3f getGround()
+  Eigen::MatrixX3f getGround( )
   {
     return toEigenCloud(cloud_ground_);
   }
-  Eigen::MatrixX3f getNonground()
+  Eigen::MatrixX3f getNonground( )
   {
     return toEigenCloud(cloud_nonground_);
   }
 
-  Eigen::MatrixX3f getCenters()
+  Eigen::MatrixX3f getCenters( )
   {
     return toEigenCloud(centers_);
   }
-  Eigen::MatrixX3f getNormals()
+  Eigen::MatrixX3f getNormals( )
   {
     return toEigenCloud(normals_);
   }
@@ -191,7 +191,7 @@ class PatchWorkpp
   patchwork::Params params_;
 
   time_t timer_;
-  long   time_taken_;
+  long time_taken_;
 
   std::vector<double> update_flatness_[4];
   std::vector<double> update_elevation_[4];
@@ -232,10 +232,10 @@ class PatchWorkpp
   void temporal_ground_revert(std::vector<double> ring_flatness, std::vector<patchwork::RevertCandidate> candidates, int concentric_idx);
 
   double calc_point_to_plane_d(PointXYZ p, Eigen::VectorXf normal, double d);
-  void   calc_mean_stdev(std::vector<double> vec, double &mean, double &stdev);
+  void calc_mean_stdev(std::vector<double> vec, double &mean, double &stdev);
 
-  void update_elevation_thr();
-  void update_flatness_thr();
+  void update_elevation_thr( );
+  void update_flatness_thr( );
 
   double xy2theta(const double &x, const double &y);
 

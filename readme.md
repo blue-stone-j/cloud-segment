@@ -17,6 +17,13 @@ Cluster by euclidean distance between points and merge points close to each othe
 
 程序中存在bug以及可以改进的地方。我没有对程序作任何改动，关于bug和改进的建议在注释中写出。我的建议可能错误甚至引入新的bug。因此，请谨慎使用本程序和采纳建议。如果可以，请反馈bug和建议，我会添加到注释中。
 
+### patchworkpp-noted
+
+经过注释的 patchwork++ 的代码。[论文](https://github.com/blue-stone-j/papers/blob/main/2022%20Patchwork%2B%2B%20Fast%20and%20Robust%20Ground%20Segmentation%20Solving%20Partial%20Under-Segmentation%20Using%203D%20Point%20Cloud.pdf)为《2022 Patchwork++ Fast and Robust Ground Segmentation Solving Partial Under-Segmentation Using 3D Point Cloud》。
+
+这篇论文提出了一种提取地面的方法。
+
+
 ### ray_ground_filter
 autoware-points_preprocessor-1.4
 

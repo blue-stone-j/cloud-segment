@@ -7,7 +7,7 @@
 #include <vector>
 #include <memory>
 #include <string>
-#include <pcl/point_types.h>
+
 #include <pcl/features/normal_3d.h>
 #include <pcl/features/normal_3d_omp.h>
 #include <pcl/filters/extract_indices.h>
