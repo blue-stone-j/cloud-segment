@@ -2,7 +2,7 @@
 
 This repo focus on cloud segmentation.
 
-### asses
+### assets
 Cloud dataset.
 
 ### euclidean_cluster

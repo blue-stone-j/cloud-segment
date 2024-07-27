@@ -1,6 +1,8 @@
+#ifndef EUCLIDEAN_CLUSTER_H
+#define EUCLIDEAN_CLUSTER_H
+
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
-#include <pcl/io/pcd_io.h>
 #include <pcl/filters/extract_indices.h>
 #include <pcl/segmentation/extract_clusters.h>
 #include <pcl/kdtree/kdtree_flann.h>
@@ -10,7 +12,7 @@ class EuclideanCluster
  public:
   EuclideanCluster( );
   ~EuclideanCluster( );
-  EuclideanCluster(int minNum, int maxNum, double clusterTolerance);
+  EuclideanCluster(int minNum, int maxNum, double clusterTolerance); // size limit of cluster, distance tolerance
   // get index of points and size of this cloud
   void computeEuclideanCluster(const pcl::PointCloud<pcl::PointXYZ> &cloud_in, std::vector<pcl::PointIndices> &cluster_indices);
 
@@ -24,3 +26,5 @@ class EuclideanCluster
   pcl::PointIndices indices;
   size_t size_pc;
 };
+
+#endif
