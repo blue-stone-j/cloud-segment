@@ -2,6 +2,7 @@
 #ifndef RAY_GROUND_FILTER_RAY_GROUND_FILTER_H
 #define RAY_GROUND_FILTER_RAY_GROUND_FILTER_H
 
+
 #include <iostream>
 #include <algorithm>
 #include <vector>
@@ -12,7 +13,8 @@
 #include <pcl/features/normal_3d_omp.h>
 #include <pcl/filters/extract_indices.h>
 #include <pcl/point_types.h>
-#include <pcl/io/pcd_io.h>
+#include <pcl/common/transforms.h>
+#include <pcl/point_cloud.h>
 
 #include "point_type.h"
 
@@ -116,7 +118,7 @@ class RayGroundFilter
 
  public:
   RayGroundFilter( );
-  void CloudCallback(const pcl::PointCloud<pcl::PointXYZI>::Ptr &in_sensor_cloud);
+  void estimateGround(const pcl::PointCloud<pcl::PointXYZI>::Ptr &in_sensor_cloud);
 };
 
 #endif // POINTS_PREPROCESSOR_RAY_GROUND_FILTER_RAY_GROUND_FILTER_H

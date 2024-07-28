@@ -246,10 +246,10 @@ void GroundFilter::FilterGround(const pcl::PointCloud<PointXYZIR>::ConstPtr &in_
   } // endfor: have traversed all columns
 }
 
-void GroundFilter::Callback(const pcl::PointCloud<PointXYZIR>::ConstPtr &in_cloud_msg)
+void GroundFilter::estimateGround(const pcl::PointCloud<PointXYZIR>::ConstPtr &in_cloud_msg, pcl::PointCloud<PointXYZIR> &ground_points)
 {
   pcl::PointCloud<PointXYZIR> vertical_points;
-  pcl::PointCloud<PointXYZIR> ground_points;
+
   vertical_points.header = in_cloud_msg->header;
   ground_points.header   = in_cloud_msg->header;
   vertical_points.clear( );

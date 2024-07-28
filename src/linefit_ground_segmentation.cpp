@@ -278,7 +278,7 @@ GroundSegmentation::GroundSegmentation(const GroundSegmentationParams &params) :
 }
 
 /*地面分割的分割函数*/
-void GroundSegmentation::segment(const PointCloud &cloud, std::vector<int> *segmentation)
+void GroundSegmentation::estimateGround(const PointCloud &cloud, std::vector<int> *segmentation)
 {
   /*初始化一些比较基础的东西*/
   std::cout << "Segmenting cloud with " << cloud.size( ) << " points...\n";

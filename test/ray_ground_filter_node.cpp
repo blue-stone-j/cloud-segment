@@ -4,6 +4,8 @@
  * amc-nu (abrahammonrroy@yahoo.com)
  */
 
+#include <pcl/io/pcd_io.h>
+
 #include "ray_ground_filter.h"
 
 int main(int argc, char **argv)
@@ -12,13 +14,13 @@ int main(int argc, char **argv)
   pcl::PointCloud<pcl::PointXYZI>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZI>);
   if (pcl::io::loadPCDFile<pcl::PointXYZI>("../assets/cloud/slope.pcd", *cloud) == -1)
   {
-    PCL_ERROR("Couldn't read file your_point_cloud_file.pcd \n");
+    PCL_ERROR("Couldn't read file point_cloud_file \n");
     return (-1);
   }
 
   RayGroundFilter app;
 
-  app.CloudCallback(cloud);
+  app.estimateGround(cloud);
 
   return 0;
 }

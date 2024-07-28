@@ -4,7 +4,6 @@
 
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
-#include <pcl/io/pcd_io.h>
 
 #include <eigen3/Eigen/Dense>
 
@@ -23,7 +22,8 @@ class GroundFilter
 {
  public:
   GroundFilter( );
-  void Callback(const pcl::PointCloud<PointXYZIR>::ConstPtr &in_cloud_msg);
+  void estimateGround(const pcl::PointCloud<PointXYZIR>::ConstPtr &in_cloud_msg,
+                      pcl::PointCloud<PointXYZIR> &ground_points);
 
  private:
   std::string point_topic_;

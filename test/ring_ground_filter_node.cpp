@@ -6,6 +6,7 @@
  *
  */
 
+#include <pcl/io/pcd_io.h>
 
 #include "ring_ground_filter.h"
 
@@ -15,13 +16,13 @@ int main(int argc, char **argv)
   pcl::PointCloud<PointXYZIR>::Ptr cloud(new pcl::PointCloud<PointXYZIR>);
   if (pcl::io::loadPCDFile<PointXYZIR>("../assets/cloud/slope.pcd", *cloud) == -1)
   {
-    PCL_ERROR("Couldn't read file your_point_cloud_file.pcd \n");
+    PCL_ERROR("Couldn't read file point_cloud_file \n");
     return (-1);
   }
 
   GroundFilter node;
-
-  node.Callback(cloud);
+  pcl::PointCloud<PointXYZIR> ground_points;
+  node.estimateGround(cloud, ground_points);
 
   return 0;
 }

@@ -7,8 +7,6 @@
 #include <numeric>
 #include <time.h>
 
-using namespace std;
-
 #define MAX_POINTS 5000
 
 namespace patchwork
@@ -33,9 +31,9 @@ struct RevertCandidate
   double ground_flatness;
   double line_variable;
   Eigen::VectorXf pc_mean;
-  vector<PointXYZ> regionwise_ground;
+  std::vector<PointXYZ> regionwise_ground;
 
-  RevertCandidate(int _c_idx, int _s_idx, double _flatness, double _line_var, Eigen::VectorXf _pc_mean, vector<PointXYZ> _ground) :
+  RevertCandidate(int _c_idx, int _s_idx, double _flatness, double _line_var, Eigen::VectorXf _pc_mean, std::vector<PointXYZ> _ground) :
     concentric_idx(_c_idx), sector_idx(_s_idx), ground_flatness(_flatness), line_variable(_line_var), pc_mean(_pc_mean), regionwise_ground(_ground)
   {
   }
@@ -68,14 +66,14 @@ struct Params
   double adaptive_seed_selection_margin;
   double intensity_thr;
 
-  vector<int> num_sectors_each_zone;
-  vector<int> num_rings_each_zone;
+  std::vector<int> num_sectors_each_zone;
+  std::vector<int> num_rings_each_zone;
 
   int max_flatness_storage;
   int max_elevation_storage;
 
-  vector<double> elevation_thr;
-  vector<double> flatness_thr;
+  std::vector<double> elevation_thr;
+  std::vector<double> flatness_thr;
 
   Params( )
   {
@@ -117,7 +115,7 @@ struct Params
 class PatchWorkpp
 {
  public:
-  typedef std::vector<vector<PointXYZ>> Ring;
+  typedef std::vector<std::vector<PointXYZ>> Ring;
   typedef std::vector<Ring> Zone;
 
   PatchWorkpp(patchwork::Params _params) :
@@ -156,7 +154,7 @@ class PatchWorkpp
   }
 
   // main/entry function; cloud_in have 4 columns(x,y,z,intesity)
-  void estimateGround(Eigen::MatrixXf cloud_in);
+  void estimateGround(const Eigen::MatrixXf &cloud, std::vector<patchwork::PointXYZ> &cloud_ground);
 
   double getHeight( )
   {
@@ -203,23 +201,23 @@ class PatchWorkpp
   Eigen::Matrix3f cov_;
   Eigen::VectorXf pc_mean_; // center of a cloud
 
-  vector<double> min_ranges_;
-  vector<double> sector_sizes_;
-  vector<double> ring_sizes_;
+  std::vector<double> min_ranges_;
+  std::vector<double> sector_sizes_;
+  std::vector<double> ring_sizes_;
 
-  vector<Zone> ConcentricZoneModel_;
+  std::vector<Zone> ConcentricZoneModel_;
 
-  vector<PointXYZ> ground_pc_, non_ground_pc_;
-  vector<PointXYZ> regionwise_ground_, regionwise_nonground_;
+  std::vector<PointXYZ> ground_pc_, non_ground_pc_;
+  std::vector<PointXYZ> regionwise_ground_, regionwise_nonground_;
 
-  vector<PointXYZ> cloud_ground_, cloud_nonground_;
+  std::vector<PointXYZ> cloud_ground_, cloud_nonground_;
 
   // every element depict ground info in a sector (smallest grid);
-  vector<PointXYZ> centers_, normals_;
+  std::vector<PointXYZ> centers_, normals_;
 
-  Eigen::MatrixX3f toEigenCloud(vector<PointXYZ> cloud);
+  Eigen::MatrixX3f toEigenCloud(std::vector<PointXYZ> cloud);
 
-  void addCloud(vector<PointXYZ> &cloud, vector<PointXYZ> &add);
+  void addCloud(std::vector<PointXYZ> &cloud, std::vector<PointXYZ> &add);
 
   // clear all zones/rings; reset Concentric Zone Model
   void flush_patches(std::vector<Zone> &czm);
@@ -242,22 +240,22 @@ class PatchWorkpp
   double xy2radius(const double &x, const double &y);
 
   // input ground, side-effect is normal and d
-  void estimate_plane(const vector<PointXYZ> &ground);
+  void estimate_plane(const std::vector<PointXYZ> &ground);
 
   // (in zone index, in sector index, out ground, out nonground)
   void extract_piecewiseground(
-      const int zone_idx, const vector<PointXYZ> &src,
-      vector<PointXYZ> &dst,
-      vector<PointXYZ> &non_ground_dst);
+      const int zone_idx, const std::vector<PointXYZ> &src,
+      std::vector<PointXYZ> &dst,
+      std::vector<PointXYZ> &non_ground_dst);
 
   // (in zone index, in cloud, out seeds)
   void extract_initial_seeds(
-      const int zone_idx, const vector<PointXYZ> &p_sorted,
-      vector<PointXYZ> &init_seeds);
+      const int zone_idx, const std::vector<PointXYZ> &p_sorted,
+      std::vector<PointXYZ> &init_seeds);
 
   void extract_initial_seeds(
-      const int zone_idx, const vector<PointXYZ> &p_sorted,
-      vector<PointXYZ> &init_seeds, double th_seed);
+      const int zone_idx, const std::vector<PointXYZ> &p_sorted,
+      std::vector<PointXYZ> &init_seeds, double th_seed);
 };
 
 }; // namespace patchwork

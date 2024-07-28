@@ -1,16 +1,3 @@
-
-#include <iostream>
-#include <algorithm>
-#include <vector>
-#include <string>
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl/features/normal_3d.h>
-#include <pcl/features/normal_3d_omp.h>
-#include <pcl/filters/extract_indices.h>
-#include <pcl/point_types.h>
-#include <pcl/common/transforms.h>
-
 #include "ray_ground_filter.h"
 
 
@@ -195,7 +182,7 @@ void RayGroundFilter::ClipCloud(const pcl::PointCloud<pcl::PointXYZI>::Ptr in_cl
       indices.indices.push_back(i);
     }
   }
-  extractor.setIndices(boost::make_shared<pcl::PointIndices>(indices));
+  extractor.setIndices(std::make_shared<pcl::PointIndices>(indices));
   extractor.setNegative(true); // true removes the indices, false leaves only the indices
   extractor.filter(*out_clipped_cloud_ptr);
 }
@@ -215,7 +202,7 @@ void RayGroundFilter::ExtractPointsIndices(const pcl::PointCloud<pcl::PointXYZI>
 {
   pcl::ExtractIndices<pcl::PointXYZI> extract_ground;
   extract_ground.setInputCloud(in_cloud_ptr);
-  extract_ground.setIndices(boost::make_shared<pcl::PointIndices>(in_indices));
+  extract_ground.setIndices(std::make_shared<pcl::PointIndices>(in_indices));
 
   extract_ground.setNegative(false); // true removes the indices, false leaves only the indices
   extract_ground.filter(*out_only_indices_cloud_ptr);
@@ -245,12 +232,12 @@ void RayGroundFilter::RemovePointsUpTo(const pcl::PointCloud<pcl::PointXYZI>::Pt
       indices.indices.push_back(i);
     }
   }
-  extractor.setIndices(boost::make_shared<pcl::PointIndices>(indices));
+  extractor.setIndices(std::make_shared<pcl::PointIndices>(indices));
   extractor.setNegative(true); // true removes the indices, false leaves only the indices
   extractor.filter(*out_filtered_cloud_ptr);
 }
 
-void RayGroundFilter::CloudCallback(const pcl::PointCloud<pcl::PointXYZI>::Ptr &in_sensor_cloud)
+void RayGroundFilter::estimateGround(const pcl::PointCloud<pcl::PointXYZI>::Ptr &in_sensor_cloud)
 {
   pcl::PointCloud<pcl::PointXYZI>::Ptr current_sensor_cloud_ptr(new pcl::PointCloud<pcl::PointXYZI>);
   TransformPointCloud(base_frame_, in_sensor_cloud, current_sensor_cloud_ptr);

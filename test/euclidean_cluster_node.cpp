@@ -1,3 +1,5 @@
+#include <pcl/io/pcd_io.h>
+
 #include "euclidean_cluster.h"
 
 int main(int argc, char **argv)
@@ -6,7 +8,7 @@ int main(int argc, char **argv)
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
   if (pcl::io::loadPCDFile<pcl::PointXYZ>("../assets/cloud/fog.pcd", *cloud) == -1)
   {
-    PCL_ERROR("Couldn't read file your_point_cloud_file.pcd \n");
+    PCL_ERROR("Couldn't read file point_cloud_file \n");
     return (-1);
   }
 

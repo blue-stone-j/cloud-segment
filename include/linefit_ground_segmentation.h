@@ -208,7 +208,7 @@ class GroundSegmentation
  public:
   GroundSegmentation(const GroundSegmentationParams &params = GroundSegmentationParams( ));
 
-  void segment(const PointCloud &cloud, std::vector<int> *segmentation);
+  void estimateGround(const PointCloud &cloud, std::vector<int> *segmentation);
 };
 
 

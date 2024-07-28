@@ -14,7 +14,7 @@ int main(int argc, char **argv)
   pcl::PointCloud<pcl::PointXYZI>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZI>);
   if (pcl::io::loadPCDFile<pcl::PointXYZI>("../assets/cloud/slope.pcd", *cloud) == -1)
   {
-    PCL_ERROR("Couldn't read file your_point_cloud_file.pcd \n");
+    PCL_ERROR("Couldn't read file point_cloud_file \n");
     return (-1);
   }
 
@@ -31,7 +31,8 @@ int main(int argc, char **argv)
   patchwork::Params params;
   patchwork::PatchWorkpp pwpp(params);
 
-  pwpp.estimateGround(cloud_in);
+  std::vector<patchwork::PointXYZ> cloud_ground;
+  pwpp.estimateGround(cloud_in, cloud_ground);
 
   return 0;
 }

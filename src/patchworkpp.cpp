@@ -1,6 +1,5 @@
 #include "patchworkpp.h"
 
-using namespace std;
 using namespace patchwork;
 
 bool point_z_cmp(PointXYZ a, PointXYZ b)
@@ -8,7 +7,7 @@ bool point_z_cmp(PointXYZ a, PointXYZ b)
   return a.z < b.z;
 }
 
-Eigen::MatrixX3f PatchWorkpp::toEigenCloud(vector<PointXYZ> cloud)
+Eigen::MatrixX3f PatchWorkpp::toEigenCloud(std::vector<PointXYZ> cloud)
 {
   Eigen::MatrixX3f dst(cloud.size( ), 3);
   int j = 0;
@@ -19,12 +18,12 @@ Eigen::MatrixX3f PatchWorkpp::toEigenCloud(vector<PointXYZ> cloud)
   return dst;
 }
 
-void PatchWorkpp::addCloud(vector<PointXYZ> &cloud, vector<PointXYZ> &add)
+void PatchWorkpp::addCloud(std::vector<PointXYZ> &cloud, std::vector<PointXYZ> &add)
 {
   cloud.insert(cloud.end( ), add.begin( ), add.end( ));
 }
 
-void PatchWorkpp::flush_patches(vector<Zone> &czm)
+void PatchWorkpp::flush_patches(std::vector<Zone> &czm)
 {
   for (int k = 0; k < params_.num_zones; k++)
   {
@@ -38,13 +37,16 @@ void PatchWorkpp::flush_patches(vector<Zone> &czm)
     }
   }
 
-  if (params_.verbose) cout << "\033[1;31m"
-                            << "PatchWorkpp::flush_patches() - Flushed patches successfully!"
-                            << "\033[0m" << endl;
+  if (params_.verbose)
+  {
+    std::cout << "\033[1;31m"
+              << "PatchWorkpp::flush_patches() - Flushed patches successfully!"
+              << "\033[0m" << std::endl;
+  }
 }
 
 // input ground, side-effect is normal and d
-void PatchWorkpp::estimate_plane(const vector<PointXYZ> &ground)
+void PatchWorkpp::estimate_plane(const std::vector<PointXYZ> &ground)
 {
   if (ground.empty( )) return;
 
@@ -84,8 +86,8 @@ void PatchWorkpp::estimate_plane(const vector<PointXYZ> &ground)
 }
 
 void PatchWorkpp::extract_initial_seeds(
-    const int zone_idx, const vector<PointXYZ> &p_sorted,
-    vector<PointXYZ> &init_seeds, double th_seed) // ; th_seeds_v
+    const int zone_idx, const std::vector<PointXYZ> &p_sorted,
+    std::vector<PointXYZ> &init_seeds, double th_seed) // ; th_seeds_v
 {
   init_seeds.clear( );
 
@@ -129,8 +131,8 @@ void PatchWorkpp::extract_initial_seeds(
 }
 
 void PatchWorkpp::extract_initial_seeds(
-    const int zone_idx, const vector<PointXYZ> &p_sorted,
-    vector<PointXYZ> &init_seeds)
+    const int zone_idx, const std::vector<PointXYZ> &p_sorted,
+    std::vector<PointXYZ> &init_seeds)
 {
   init_seeds.clear( );
 
@@ -173,14 +175,15 @@ void PatchWorkpp::extract_initial_seeds(
   }
 }
 
-void PatchWorkpp::estimateGround(Eigen::MatrixXf cloud_in)
+void PatchWorkpp::estimateGround(const Eigen::MatrixXf &cloud, std::vector<patchwork::PointXYZ> &cloud_ground)
 {
   cloud_ground_.clear( );
   cloud_nonground_.clear( );
+  Eigen::MatrixXf cloud_in = cloud;
 
-  if (params_.verbose) cout << "\033[1;32m"
-                            << "PatchWorkpp::estimateGround() - Estimation starts !"
-                            << "\033[0m" << endl;
+  if (params_.verbose) std::cout << "\033[1;32m"
+                                 << "PatchWorkpp::estimateGround() - Estimation starts !"
+                                 << "\033[0m" << std::endl;
 
   clock_t beg = clock( ); // moment of beginning
 
@@ -360,19 +363,23 @@ void PatchWorkpp::estimateGround(Eigen::MatrixXf cloud_in)
 
   if (params_.verbose)
   {
-    cout << "Time taken : " << time_taken_ / double(1000000) << "(sec) ~ "
-         //  << t_flush / double(1000000)  << "(flush) + "
-         << t_czm / double(1000000) << "(czm) + "
-         << t_sort / double(1000000) << "(sort) + "
-         << t_pca / double(1000000) << "(pca) + "
-         << t_gle / double(1000000) << "(estimate)" << endl;
+    std::cout << "Time taken : " << time_taken_ / double(1000000) << "(sec) ~ "
+              //  << t_flush / double(1000000)  << "(flush) + "
+              << t_czm / double(1000000) << "(czm) + "
+              << t_sort / double(1000000) << "(sort) + "
+              << t_pca / double(1000000) << "(pca) + "
+              << t_gle / double(1000000) << "(estimate)" << std::endl;
     //  << t_revert / double(1000000) << "(revert) + "
-    //  << t_update / double(1000000) << "(update)" << endl;
+    //  << t_update / double(1000000) << "(update)" <<std::endl;
   }
 
-  if (params_.verbose) cout << "\033[1;32m"
-                            << "PatchWorkpp::estimateGround() - Estimation is finished !"
-                            << "\033[0m" << endl;
+  if (params_.verbose)
+  {
+    std::cout << "\033[1;32m"
+              << "PatchWorkpp::estimateGround() - Estimation is finished !"
+              << "\033[0m" << std::endl;
+  }
+  cloud_ground_ = cloud_ground;
 }
 
 void PatchWorkpp::update_elevation_thr(void)
@@ -391,7 +398,7 @@ void PatchWorkpp::update_elevation_thr(void)
     else
       params_.elevation_thr[i] = update_mean + 2 * update_stdev;
 
-    // if (params_.verbose) cout << "elevation threshold [" << i << "]: " << params_.elevation_thr[i] << endl;
+    // if (params_.verbose)std::cout<< "elevation threshold [" << i << "]: " << params_.elevation_thr[i] <<std::endl;
 
     int exceed_num = update_elevation_[i].size( ) - params_.max_elevation_storage;
     if (exceed_num > 0) { update_elevation_[i].erase(update_elevation_[i].begin( ), update_elevation_[i].begin( ) + exceed_num); }
@@ -409,7 +416,7 @@ void PatchWorkpp::update_flatness_thr(void)
     calc_mean_stdev(update_flatness_[i], update_mean, update_stdev);
     params_.flatness_thr[i] = update_mean + update_stdev;
 
-    // if (params_.verbose) { cout << "flatness threshold [" << i << "]: " << params_.flatness_thr[i] << endl; }
+    // if (params_.verbose) {std::cout<< "flatness threshold [" << i << "]: " << params_.flatness_thr[i] <<std::endl; }
 
     int exceed_num = update_flatness_[i].size( ) - params_.max_flatness_storage;
     if (exceed_num > 0) update_flatness_[i].erase(update_flatness_[i].begin( ), update_flatness_[i].begin( ) + exceed_num);
@@ -420,7 +427,7 @@ void PatchWorkpp::reflected_noise_removal(Eigen::MatrixXf &cloud_in)
 {
   if (cloud_in.cols( ) < 4)
   {
-    cout << "RNR requires intensity information !" << endl;
+    std::cout << "RNR requires intensity information !" << std::endl;
     return;
   }
 
@@ -445,7 +452,7 @@ void PatchWorkpp::reflected_noise_removal(Eigen::MatrixXf &cloud_in)
 
   if (params_.verbose)
   {
-    cout << "PatchWorkpp::reflected_noise_removal() - Number of Noises : " << cnt << endl;
+    std::cout << "PatchWorkpp::reflected_noise_removal() - Number of Noises : " << cnt << std::endl;
   }
 }
 
@@ -456,7 +463,7 @@ void PatchWorkpp::temporal_ground_revert(std::vector<double> ring_flatness, std:
   {
     std::cout << "\033[1;34m"
               << "=========== Temporal Ground Revert (TGR) ==========="
-              << "\033[0m" << endl;
+              << "\033[0m" << std::endl;
   }
 
   double mean_flatness = 0.0, stdev_flatness = 0.0;
@@ -464,8 +471,8 @@ void PatchWorkpp::temporal_ground_revert(std::vector<double> ring_flatness, std:
 
   if (params_.verbose)
   {
-    cout << "[" << candidates[0].concentric_idx << ", " << candidates[0].sector_idx << "]"
-         << " mean_flatness: " << mean_flatness << ", stdev_flatness: " << stdev_flatness << std::endl;
+    std::cout << "[" << candidates[0].concentric_idx << ", " << candidates[0].sector_idx << "]"
+              << " mean_flatness: " << mean_flatness << ", stdev_flatness: " << stdev_flatness << std::endl;
   }
 
   for (auto candidate : candidates)
@@ -473,11 +480,11 @@ void PatchWorkpp::temporal_ground_revert(std::vector<double> ring_flatness, std:
     // Debug
     if (params_.verbose)
     {
-      cout << "\033[1;33m" << candidate.sector_idx << "th flat_sector_candidate"
-           << " / flatness: " << candidate.ground_flatness
-           << " / line_variable: " << candidate.line_variable
-           << " / ground_num : " << candidate.regionwise_ground.size( )
-           << "\033[0m" << endl;
+      std::cout << "\033[1;33m" << candidate.sector_idx << "th flat_sector_candidate"
+                << " / flatness: " << candidate.ground_flatness
+                << " / line_variable: " << candidate.line_variable
+                << " / ground_num : " << candidate.regionwise_ground.size( )
+                << "\033[0m" << std::endl;
     }
 
     double mu_flatness   = mean_flatness + 1.5 * stdev_flatness;
@@ -488,7 +495,7 @@ void PatchWorkpp::temporal_ground_revert(std::vector<double> ring_flatness, std:
     double prob_line = 1.0;
     if (candidate.line_variable > 8.0) //&& candidate.line_dir > M_PI/4)//
     {
-      // if (params_.verbose) cout << "line_dir: " << candidate.line_dir << endl;
+      // if (params_.verbose)std::cout<< "line_dir: " << candidate.line_dir <<std::endl;
       prob_line = 0.0;
     }
 
@@ -500,9 +507,9 @@ void PatchWorkpp::temporal_ground_revert(std::vector<double> ring_flatness, std:
       {
         if (params_.verbose)
         {
-          cout << "\033[1;32m"
-               << "REVERT TRUE"
-               << "\033[0m" << endl;
+          std::cout << "\033[1;32m"
+                    << "REVERT TRUE"
+                    << "\033[0m" << std::endl;
         }
         addCloud(cloud_ground_, candidate.regionwise_ground);
       }
@@ -510,9 +517,9 @@ void PatchWorkpp::temporal_ground_revert(std::vector<double> ring_flatness, std:
       {
         if (params_.verbose)
         {
-          cout << "\033[1;31m"
-               << "FINAL REJECT"
-               << "\033[0m" << endl;
+          std::cout << "\033[1;31m"
+                    << "FINAL REJECT"
+                    << "\033[0m" << std::endl;
         }
         addCloud(cloud_nonground_, candidate.regionwise_ground);
       }
@@ -521,15 +528,15 @@ void PatchWorkpp::temporal_ground_revert(std::vector<double> ring_flatness, std:
 
   if (params_.verbose) std::cout << "\033[1;34m"
                                  << "===================================================="
-                                 << "\033[0m" << endl;
+                                 << "\033[0m" << std::endl;
 }
 
 // For adaptive (in zone index, in sector index, out ground, out nonground)
 void PatchWorkpp::extract_piecewiseground(
     const int zone_idx,
-    const vector<PointXYZ> &src,      // sorted sector (smallest grid)
-    vector<PointXYZ> &dst,            // regionwise_ground_
-    vector<PointXYZ> &non_ground_dst) // regionwise_nonground_
+    const std::vector<PointXYZ> &src,      // sorted sector (smallest grid)
+    std::vector<PointXYZ> &dst,            // regionwise_ground_
+    std::vector<PointXYZ> &non_ground_dst) // regionwise_nonground_
 {
   // 0. Initialization
   if (!ground_pc_.empty( ))
@@ -547,7 +554,7 @@ void PatchWorkpp::extract_piecewiseground(
 
   // 1. Region-wise Vertical Plane Fitting (R-VPF)
   // : removes potential vertical plane under the ground plane
-  vector<PointXYZ> src_wo_verticals;
+  std::vector<PointXYZ> src_wo_verticals;
   src_wo_verticals = src;
 
   if (params_.enable_RVPF)
@@ -561,7 +568,7 @@ void PatchWorkpp::extract_piecewiseground(
 
       if (zone_idx == 0 && normal_(2) < params_.uprightness_thr) // z-direction small
       {
-        vector<PointXYZ> src_tmp;
+        std::vector<PointXYZ> src_tmp;
         src_tmp = src_wo_verticals;
         src_wo_verticals.clear( );
 
@@ -634,10 +641,10 @@ void PatchWorkpp::extract_piecewiseground(
   // to judge whether this code is right,; but note that this is a dangerous behavior
   if (dst.size( ) + non_ground_dst.size( ) != src.size( ))
   {
-    cout << "\033[1;33m"
-         << "Points are Missing/Adding !!! Please Check !! "
-         << "\033[0m" << endl;
-    cout << "gnd size: " << dst.size( ) << ", non gnd size: " << non_ground_dst.size( ) << ", src: " << src.size( ) << endl;
+    std::cout << "\033[1;33m"
+              << "Points are Missing/Adding !!! Please Check !! "
+              << "\033[0m" << std::endl;
+    std::cout << "gnd size: " << dst.size( ) << ", non gnd size: " << non_ground_dst.size( ) << ", src: " << src.size( ) << std::endl;
   }
 }
 
@@ -701,26 +708,26 @@ void PatchWorkpp::pc2czm(const Eigen::MatrixXf &src, std::vector<Zone> &czm)
       // four zones
       if (r < min_range_1) // In First rings
       {
-        ring_idx   = min(static_cast<int>(((r - min_range_0) / ring_sizes_[0])), num_ring_0 - 1);
-        sector_idx = min(static_cast<int>((theta / sector_sizes_[0])), num_sector_0 - 1);
+        ring_idx   = std::min(static_cast<int>(((r - min_range_0) / ring_sizes_[0])), num_ring_0 - 1);
+        sector_idx = std::min(static_cast<int>((theta / sector_sizes_[0])), num_sector_0 - 1);
         czm[0][ring_idx][sector_idx].emplace_back(PointXYZ(x, y, z));
       }
       else if (r < min_range_2)
       {
-        ring_idx   = min(static_cast<int>(((r - min_range_1) / ring_sizes_[1])), num_ring_1 - 1);
-        sector_idx = min(static_cast<int>((theta / sector_sizes_[1])), num_sector_1 - 1);
+        ring_idx   = std::min(static_cast<int>(((r - min_range_1) / ring_sizes_[1])), num_ring_1 - 1);
+        sector_idx = std::min(static_cast<int>((theta / sector_sizes_[1])), num_sector_1 - 1);
         czm[1][ring_idx][sector_idx].emplace_back(PointXYZ(x, y, z));
       }
       else if (r < min_range_3)
       {
-        ring_idx   = min(static_cast<int>(((r - min_range_2) / ring_sizes_[2])), num_ring_2 - 1);
-        sector_idx = min(static_cast<int>((theta / sector_sizes_[2])), num_sector_2 - 1);
+        ring_idx   = std::min(static_cast<int>(((r - min_range_2) / ring_sizes_[2])), num_ring_2 - 1);
+        sector_idx = std::min(static_cast<int>((theta / sector_sizes_[2])), num_sector_2 - 1);
         czm[2][ring_idx][sector_idx].emplace_back(PointXYZ(x, y, z));
       }
       else // Far!
       {
-        ring_idx   = min(static_cast<int>(((r - min_range_3) / ring_sizes_[3])), num_ring_3 - 1);
-        sector_idx = min(static_cast<int>((theta / sector_sizes_[3])), num_sector_3 - 1);
+        ring_idx   = std::min(static_cast<int>(((r - min_range_3) / ring_sizes_[3])), num_ring_3 - 1);
+        sector_idx = std::min(static_cast<int>((theta / sector_sizes_[3])), num_sector_3 - 1);
         czm[3][ring_idx][sector_idx].emplace_back(PointXYZ(x, y, z));
       }
     }
@@ -729,7 +736,7 @@ void PatchWorkpp::pc2czm(const Eigen::MatrixXf &src, std::vector<Zone> &czm)
       cloud_nonground_.push_back(PointXYZ(x, y, z));
     }
   }
-  if (params_.verbose) cout << "\033[1;33m"
-                            << "PatchWorkpp::pc2czm() - Divides pointcloud into the concentric zone model successfully"
-                            << "\033[0m" << endl;
+  if (params_.verbose) std::cout << "\033[1;33m"
+                                 << "PatchWorkpp::pc2czm() - Divides pointcloud into the concentric zone model successfully"
+                                 << "\033[0m" << std::endl;
 }
