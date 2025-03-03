@@ -1,5 +1,6 @@
 #include "patchworkpp.h"
 
+#include <numeric>
 using namespace patchwork;
 
 bool point_z_cmp(PointXYZ a, PointXYZ b)
@@ -120,7 +121,7 @@ void PatchWorkpp::extract_initial_seeds(
   }
   double lpr_height = cnt != 0 ? sum / cnt : 0; // in case divide by 0
 
-  int init_seeds_num = 0; // iterate pointcloud, filter those height is less than lpr.height+params_.th_seeds
+  // int init_seeds_num = 0; // iterate pointcloud, filter those height is less than lpr.height+params_.th_seeds
   for (size_t i = 0; i < p_sorted.size( ); i++)
   {
     if (p_sorted[i].z < lpr_height + th_seed)
@@ -164,7 +165,7 @@ void PatchWorkpp::extract_initial_seeds(
   }
   double lpr_height = cnt != 0 ? sum / cnt : 0; // in case divide by 0; mean height
 
-  int init_seeds_num = 0;
+  // int init_seeds_num = 0;
   // iterate pointcloud, filter those height is less than lpr.height+params_.th_seeds
   for (size_t i = 0; i < p_sorted.size( ); i++)
   {
@@ -198,11 +199,11 @@ void PatchWorkpp::estimateGround(const Eigen::MatrixXf &cloud, std::vector<patch
   // 2. Concentric Zone Model (CZM)
   flush_patches(ConcentricZoneModel_);
 
-  clock_t t1_1 = clock( ); // moment when complete intialization
+  clock_t t1_1 = clock( ); // moment when complete initialization
 
-  pc2czm(cloud_in, ConcentricZoneModel_); // devide cloud into rings and bins
+  pc2czm(cloud_in, ConcentricZoneModel_); // divide cloud into rings and bins
 
-  clock_t t2 = clock( ); // moment when devide all points
+  clock_t t2 = clock( ); // moment when divide all points
 
   int concentric_idx = 0;
 
@@ -210,10 +211,13 @@ void PatchWorkpp::estimateGround(const Eigen::MatrixXf &cloud, std::vector<patch
   normals_.clear( );
 
   // t gel: Ground Likelihood Estimation; t update: update by elevation & flatness
-  double t_flush = t1_1 - t1, t_czm = t2 - t1_1, t_sort = 0.0, t_pca = 0.0, t_gle = 0.0, t_revert = 0.0, t_update = 0.0;
+  double t_flush  = t1_1 - t1;
+  double t_revert = 0.0;
+  double t_update = 0.0;
+  double t_czm = t2 - t1_1, t_sort = 0.0, t_pca = 0.0, t_gle = 0.0;
 
   std::vector<patchwork::RevertCandidate> candidates;
-  std::vector<double> ringwise_flatness;
+  std::vector<double> ring_wise_flatness;
 
   for (int zone_idx = 0; zone_idx < params_.num_zones; ++zone_idx) // traverse all zones
   {
@@ -244,7 +248,7 @@ void PatchWorkpp::estimateGround(const Eigen::MatrixXf &cloud, std::vector<patch
         clock_t t_bef_pca = clock( );
         // 3. piece-wise ground
         // (in zone index, in sector index, out ground, out nonground)
-        extract_piecewiseground(zone_idx, zone[ring_idx][sector_idx], regionwise_ground_, regionwise_nonground_);
+        extract_piece_wise_ground(zone_idx, zone[ring_idx][sector_idx], region_wise_ground_, region_wise_nonground_);
         clock_t t_aft_pca = clock( );
 
         t_pca += t_aft_pca - t_bef_pca;
@@ -271,7 +275,7 @@ void PatchWorkpp::estimateGround(const Eigen::MatrixXf &cloud, std::vector<patch
             ( Imagine the geometric relationship between the surface normal vector on the ground plane and
                 the vector connecting the sensor origin and the mean point of the ground plane )
 
-            However, when the patch is far awaw from the sensor origin,
+            However, when the patch is far away from the sensor origin,
             heading could be larger than 0 even if it's ground due to lack of amount of ground plane points.
 
             Therefore, we only check this value when concentric_idx < num_rings_of_interest ( near condition )
@@ -292,64 +296,64 @@ void PatchWorkpp::estimateGround(const Eigen::MatrixXf &cloud, std::vector<patch
           update_elevation_[concentric_idx].push_back(ground_elevation);
           update_flatness_[concentric_idx].push_back(ground_flatness);
 
-          ringwise_flatness.push_back(ground_flatness);
+          ring_wise_flatness.push_back(ground_flatness);
         }
 
         // Ground estimation based on conditions
         if (!is_upright) // not upright
         {
-          addCloud(cloud_nonground_, regionwise_ground_);
+          addCloud(cloud_nonground_, region_wise_ground_);
         }
         else if (!is_near_zone) // upright, not near
         {
-          addCloud(cloud_ground_, regionwise_ground_);
+          addCloud(cloud_ground_, region_wise_ground_);
         }
         else if (!is_heading_outside) // upright, near, not heading outside
         {
-          addCloud(cloud_nonground_, regionwise_ground_);
+          addCloud(cloud_nonground_, region_wise_ground_);
         }
         else if (is_not_elevated || is_flat) // upright, near, not heading outside; low or flat
         {
-          addCloud(cloud_ground_, regionwise_ground_);
+          addCloud(cloud_ground_, region_wise_ground_);
         }
         else
         {
-          patchwork::RevertCandidate candidate(concentric_idx, sector_idx, ground_flatness, line_variable, pc_mean_, regionwise_ground_);
+          patchwork::RevertCandidate candidate(concentric_idx, sector_idx, ground_flatness, line_variable, pc_mean_, region_wise_ground_);
           candidates.push_back(candidate);
         }
-        // Every regionwise_nonground is considered nonground.
-        addCloud(cloud_nonground_, regionwise_nonground_);
+        // Every region_wise_nonground is considered nonground.
+        addCloud(cloud_nonground_, region_wise_nonground_);
 
         clock_t t_aft_gle = clock( );
 
         t_gle += t_aft_gle - t_bef_gle;
-      } // endfor: have devided points in this sector into ground and non-ground
+      } // endfor: have divided points in this sector into ground and non-ground
 
       clock_t t_bef_revert = clock( );
       if (!candidates.empty( ))
       {
         if (params_.enable_TGR)
         {
-          temporal_ground_revert(ringwise_flatness, candidates, concentric_idx);
+          temporal_ground_revert(ring_wise_flatness, candidates, concentric_idx);
         }
         else
         {
           for (auto candidate : candidates)
           {
-            addCloud(cloud_nonground_, candidate.regionwise_ground);
+            addCloud(cloud_nonground_, candidate.region_wise_ground);
           }
         }
 
         candidates.clear( );
-        ringwise_flatness.clear( );
-      } // endfor: have devided points in this sector into ground and nonground
+        ring_wise_flatness.clear( );
+      } // endfor: have divided points in this sector into ground and nonground
       clock_t t_aft_revert = clock( );
 
       t_revert += t_aft_revert - t_bef_revert;
 
       concentric_idx++;
     } // endfor: have traversed all rings
-  } // endfor: have traversed all zones
+  }   // endfor: have traversed all zones
 
   clock_t t_bef_update = clock( );
   update_elevation_thr( );
@@ -364,13 +368,13 @@ void PatchWorkpp::estimateGround(const Eigen::MatrixXf &cloud, std::vector<patch
   if (params_.verbose)
   {
     std::cout << "Time taken : " << time_taken_ / double(1000000) << "(sec) ~ "
-              //  << t_flush / double(1000000)  << "(flush) + "
+              << t_flush / double(1000000) << "(flush) + "
               << t_czm / double(1000000) << "(czm) + "
               << t_sort / double(1000000) << "(sort) + "
               << t_pca / double(1000000) << "(pca) + "
-              << t_gle / double(1000000) << "(estimate)" << std::endl;
-    //  << t_revert / double(1000000) << "(revert) + "
-    //  << t_update / double(1000000) << "(update)" <<std::endl;
+              << t_gle / double(1000000) << "(estimate)"
+              << t_revert / double(1000000) << "(revert) + "
+              << t_update / double(1000000) << "(update)" << std::endl;
   }
 
   if (params_.verbose)
@@ -438,7 +442,7 @@ void PatchWorkpp::reflected_noise_removal(Eigen::MatrixXf &cloud_in)
     double z                = cloud_in.row(i)(2);
     double ver_angle_in_deg = atan2(z, r) * 180 / M_PI; // vertical angle in degree
 
-    // not influced by bumpy roads
+    // not influenced by bumpy roads
     if (ver_angle_in_deg < params_.RNR_ver_angle_thr
         && z < -params_.sensor_height - 0.8
         && cloud_in.row(i)(3) < params_.RNR_intensity_thr)
@@ -483,14 +487,14 @@ void PatchWorkpp::temporal_ground_revert(std::vector<double> ring_flatness, std:
       std::cout << "\033[1;33m" << candidate.sector_idx << "th flat_sector_candidate"
                 << " / flatness: " << candidate.ground_flatness
                 << " / line_variable: " << candidate.line_variable
-                << " / ground_num : " << candidate.regionwise_ground.size( )
+                << " / ground_num : " << candidate.region_wise_ground.size( )
                 << "\033[0m" << std::endl;
     }
 
     double mu_flatness   = mean_flatness + 1.5 * stdev_flatness;
     double prob_flatness = 1 / (1 + exp((candidate.ground_flatness - mu_flatness) / (mu_flatness / 10)));
 
-    if (candidate.regionwise_ground.size( ) > 1500 && candidate.ground_flatness < params_.th_dist * params_.th_dist) prob_flatness = 1.0;
+    if (candidate.region_wise_ground.size( ) > 1500 && candidate.ground_flatness < params_.th_dist * params_.th_dist) prob_flatness = 1.0;
 
     double prob_line = 1.0;
     if (candidate.line_variable > 8.0) //&& candidate.line_dir > M_PI/4)//
@@ -511,7 +515,7 @@ void PatchWorkpp::temporal_ground_revert(std::vector<double> ring_flatness, std:
                     << "REVERT TRUE"
                     << "\033[0m" << std::endl;
         }
-        addCloud(cloud_ground_, candidate.regionwise_ground);
+        addCloud(cloud_ground_, candidate.region_wise_ground);
       }
       else
       {
@@ -521,7 +525,7 @@ void PatchWorkpp::temporal_ground_revert(std::vector<double> ring_flatness, std:
                     << "FINAL REJECT"
                     << "\033[0m" << std::endl;
         }
-        addCloud(cloud_nonground_, candidate.regionwise_ground);
+        addCloud(cloud_nonground_, candidate.region_wise_ground);
       }
     }
   }
@@ -532,11 +536,11 @@ void PatchWorkpp::temporal_ground_revert(std::vector<double> ring_flatness, std:
 }
 
 // For adaptive (in zone index, in sector index, out ground, out nonground)
-void PatchWorkpp::extract_piecewiseground(
+void PatchWorkpp::extract_piece_wise_ground(
     const int zone_idx,
     const std::vector<PointXYZ> &src,      // sorted sector (smallest grid)
-    std::vector<PointXYZ> &dst,            // regionwise_ground_
-    std::vector<PointXYZ> &non_ground_dst) // regionwise_nonground_
+    std::vector<PointXYZ> &dst,            // region_wise_ground_
+    std::vector<PointXYZ> &non_ground_dst) // region_wise_nonground_
 {
   // 0. Initialization
   if (!ground_pc_.empty( ))
@@ -615,7 +619,7 @@ void PatchWorkpp::extract_piecewiseground(
           ground_pc_.push_back(point);
         }
       }
-      else // When last iteration, update dst and nonground. Therefore, whole src_wo_nonground is devided into dst and nonground
+      else // When last iteration, update dst and nonground. Therefore, whole src_wo_nonground is divided into dst and nonground
       {
         if (distance < params_.th_dist)
         {
@@ -679,7 +683,7 @@ double PatchWorkpp::xy2radius(const double &x, const double &y)
   return sqrt(x * x + y * y);
 }
 
-// devide points into rings and bins
+// divide points into rings and bins
 void PatchWorkpp::pc2czm(const Eigen::MatrixXf &src, std::vector<Zone> &czm)
 {
   double max_range = params_.max_range, min_range = params_.min_range;

@@ -77,6 +77,23 @@
     "queue": "cpp",
     "stack": "cpp",
     "dense": "cpp",
-    "ios": "cpp"
-  }
+    "ios": "cpp",
+    "compare": "cpp",
+    "concepts": "cpp",
+    "forward_list": "cpp",
+    "numbers": "cpp",
+    "semaphore": "cpp",
+    "stop_token": "cpp"
+  },
+  "cSpell.words": [
+    "nonground",
+    "patchworkpp",
+    "reclass",
+    "RVPF",
+    "Workpp",
+    "XYZI",
+    "XYZIR",
+    "XYZIRT",
+    "XYZRTZ"
+  ]
 }

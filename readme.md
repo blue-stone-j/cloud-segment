@@ -1,11 +1,13 @@
-# introudction
+# introduction
 
 This repo focus on cloud segmentation.
 
 ### assets
+
 Cloud dataset.
 
 ### euclidean_cluster
+
 Cluster by euclidean distance between points and merge points close to each other into one cluster.
 
 ### linefit_ground_segmentation
@@ -23,11 +25,12 @@ Cluster by euclidean distance between points and merge points close to each othe
 
 这篇论文提出了一种提取地面的方法。
 
-
 ### ray_ground_filter
+
 autoware-points_preprocessor-1.4
 
 ### ring_ground_filter
+
 autoware-points_preprocessor-1.4
 
 *Problem:* Some parts of vertical objects are detected as ground points.
@@ -54,6 +57,6 @@ autoware-points_preprocessor-1.4
 *Problem:* Line shaped noise (in radial direction) occurs near edges of vertical objects.
 *FIX:* Decrease the "min_points" parameter. However, by doing so, some parts of vertical objects will be mis-detected as ground points.
 
-
 ### patchworkpp
+
 Divide cloud to by radial direction and tangential direction. And then judge whether this segment belongs to ground.

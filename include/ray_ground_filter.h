@@ -3,8 +3,6 @@
 #define RAY_GROUND_FILTER_RAY_GROUND_FILTER_H
 
 
-#include <iostream>
-#include <algorithm>
 #include <vector>
 #include <memory>
 #include <string>
@@ -16,7 +14,6 @@
 #include <pcl/common/transforms.h>
 #include <pcl/point_cloud.h>
 
-#include "point_type.h"
 
 
 class RayGroundFilter
@@ -34,16 +31,16 @@ class RayGroundFilter
   double reclass_distance_threshold_;  // distance between points at which re classification will occur
 
   size_t radial_dividers_num_;
-  size_t concentric_dividers_num_;
+  // size_t concentric_dividers_num_;
 
   struct PointXYZIRT
   {
     pcl::PointXYZI point;
 
-    float radius; // cylindric coords on XY Plane
+    float radius; // cylindrical coords on XY Plane
     float theta;  // angle deg on XY plane
 
-    size_t radial_div;     // (theta)index of the radial divsion to which this point belongs to
+    size_t radial_div;     // (theta)index of the radial dvision to which this point belongs to
     size_t concentric_div; // (radius)index of the concentric division to which this points belongs to
 
     size_t original_index; // index of this point in the source pointcloud
@@ -55,8 +52,8 @@ class RayGroundFilter
    * @param[in] in_target_frame Coordinate system to perform transform
    * @param[in] in_cloud_ptr PointCloud to perform transform
    * @param[out] out_cloud_ptr Resulting transformed PointCloud
-   * @retval true transform successed
-   * @retval false transform faild
+   * @retval true transform success
+   * @retval false transform failed
    */
   bool TransformPointCloud(const std::string &in_target_frame, const pcl::PointCloud<pcl::PointXYZI>::Ptr &in_cloud_ptr,
                            const pcl::PointCloud<pcl::PointXYZI>::Ptr &out_cloud_ptr);
@@ -74,7 +71,7 @@ class RayGroundFilter
                              const std::shared_ptr<std::vector<PointCloudXYZIRT>> &out_radial_ordered_clouds);
 
   /*!
-   * Classifies Points in the PointCoud as Ground and Not Ground
+   * Classifies Points in the PointCloud as Ground and Not Ground
    * @param in_radial_ordered_clouds Vector of an Ordered PointsCloud ordered by radial distance from the origin
    * @param out_ground_indices Returns the indices of the points classified as ground in the original PointCloud
    * @param out_no_ground_indices Returns the indices of the points classified as not ground in the original PointCloud
@@ -87,7 +84,7 @@ class RayGroundFilter
    * Removes the points higher than a threshold
    * @param in_cloud_ptr PointCloud to perform Clipping
    * @param in_clip_height Maximum allowed height in the cloud
-   * @param out_clipped_cloud_ptr Resultung PointCloud with the points removed
+   * @param out_clipped_cloud_ptr resulting PointCloud with the points removed
    */
   void ClipCloud(const pcl::PointCloud<pcl::PointXYZI>::Ptr in_cloud_ptr, const double in_clip_height,
                  pcl::PointCloud<pcl::PointXYZI>::Ptr out_clipped_cloud_ptr);

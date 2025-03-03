@@ -1,7 +1,8 @@
 /build
-
+.cache
 .vscode
 
 /install
 
 /lib
+/.vscode

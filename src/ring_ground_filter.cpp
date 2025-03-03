@@ -12,7 +12,7 @@ GroundFilter::GroundFilter( )
 
   max_slope_ = 10.0;
 
-  vertical_thres_ = 0.08;
+  vertical_threshold_ = 0.08;
 
 
   no_ground_topic = "/points_no_ground";
@@ -145,7 +145,7 @@ void GroundFilter::FilterGround(const pcl::PointCloud<PointXYZIR>::ConstPtr &in_
 
   for (int i = 0; i < horizontal_res_; i++) // traverse every column
   {
-    // e.g. if from distant to close: ground -> car -> ground, this ray will be devided into 3 segments
+    // e.g. if from distant to close: ground -> car -> ground, this ray will be divided into 3 segments
     Label point_class[vertical_res_];
     int point_index[vertical_res_];
     int point_index_size = 0;
@@ -172,7 +172,7 @@ void GroundFilter::FilterGround(const pcl::PointCloud<PointXYZIR>::ConstPtr &in_
         }
         else // not first point
         {
-          if (point_index_size > 1 && (z_max - z_min) > vertical_thres_) // this segment is classified as vertical
+          if (point_index_size > 1 && (z_max - z_min) > vertical_threshold_) // this segment is classified as vertical
           {
             for (int m = 0; m < point_index_size; m++)
             {
@@ -208,10 +208,10 @@ void GroundFilter::FilterGround(const pcl::PointCloud<PointXYZIR>::ConstPtr &in_
           point_index[point_index_size] = j;
           point_index_size++;
         }
-      } // have classified this point
+      }                                                    // have classified this point
       if (j == vertical_res_ - 1 && point_index_size != 0) // last point in this column
       {
-        if (point_index_size > 1 && (z_max - z_min) > vertical_thres_)
+        if (point_index_size > 1 && (z_max - z_min) > vertical_threshold_)
         {
           for (int m = 0; m < point_index_size; m++)
           {
@@ -243,7 +243,7 @@ void GroundFilter::FilterGround(const pcl::PointCloud<PointXYZIR>::ConstPtr &in_
         }
       }
     } // endfor: have traverse all points in this column
-  } // endfor: have traversed all columns
+  }   // endfor: have traversed all columns
 }
 
 void GroundFilter::estimateGround(const pcl::PointCloud<PointXYZIR>::ConstPtr &in_cloud_msg, pcl::PointCloud<PointXYZIR> &ground_points)

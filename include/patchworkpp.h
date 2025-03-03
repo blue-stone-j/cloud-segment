@@ -4,14 +4,12 @@
 #include <iostream>
 #include <vector>
 #include <Eigen/Dense>
-#include <numeric>
 #include <time.h>
 
 #define MAX_POINTS 5000
 
 namespace patchwork
 {
-
 struct PointXYZ
 {
   float x;
@@ -31,10 +29,10 @@ struct RevertCandidate
   double ground_flatness;
   double line_variable;
   Eigen::VectorXf pc_mean;
-  std::vector<PointXYZ> regionwise_ground;
+  std::vector<PointXYZ> region_wise_ground;
 
   RevertCandidate(int _c_idx, int _s_idx, double _flatness, double _line_var, Eigen::VectorXf _pc_mean, std::vector<PointXYZ> _ground) :
-    concentric_idx(_c_idx), sector_idx(_s_idx), ground_flatness(_flatness), line_variable(_line_var), pc_mean(_pc_mean), regionwise_ground(_ground)
+    concentric_idx(_c_idx), sector_idx(_s_idx), ground_flatness(_flatness), line_variable(_line_var), pc_mean(_pc_mean), region_wise_ground(_ground)
   {
   }
 };
@@ -93,9 +91,9 @@ struct Params
 
     sensor_height                  = 1.723;
     th_seeds                       = 0.125; // threshold for lowest point representatives using in initial seeds selection of ground points.
-    th_dist                        = 0.125; // threshold for thickenss of ground.
+    th_dist                        = 0.125; // threshold for thickness of ground.
     th_seeds_v                     = 0.25;  // threshold for lowest point representatives using in initial seeds selection of vertical structural points.
-    th_dist_v                      = 0.1;   // threshold for thickenss of vertical structure.
+    th_dist_v                      = 0.1;   // threshold for thickness of vertical structure.
     max_range                      = 80.0;  // max_range of ground estimation area
     min_range                      = 2.7;   // min_range of ground estimation area
     uprightness_thr                = 0.707; // threshold of uprightness using in Ground Likelihood Estimation(GLE). Please refer paper for more information about GLE.
@@ -111,7 +109,7 @@ struct Params
   }
 };
 
-// this is the class to realize fucntion
+// this is the class to realize function
 class PatchWorkpp
 {
  public:
@@ -128,9 +126,9 @@ class PatchWorkpp
     min_ranges_          = {params_.min_range, min_range_z2_, min_range_z3_, min_range_z4_};
 
     ring_sizes_   = {(min_range_z2_ - params_.min_range) / params_.num_rings_each_zone.at(0),
-                     (min_range_z3_ - min_range_z2_) / params_.num_rings_each_zone.at(1),
-                     (min_range_z4_ - min_range_z3_) / params_.num_rings_each_zone.at(2),
-                     (params_.max_range - min_range_z4_) / params_.num_rings_each_zone.at(3)};
+                   (min_range_z3_ - min_range_z2_) / params_.num_rings_each_zone.at(1),
+                   (min_range_z4_ - min_range_z3_) / params_.num_rings_each_zone.at(2),
+                   (params_.max_range - min_range_z4_) / params_.num_rings_each_zone.at(3)};
     sector_sizes_ = {2 * M_PI / params_.num_sectors_each_zone.at(0),
                      2 * M_PI / params_.num_sectors_each_zone.at(1),
                      2 * M_PI / params_.num_sectors_each_zone.at(2),
@@ -153,7 +151,7 @@ class PatchWorkpp
     std::cout << "PatchWorkpp::PatchWorkpp() - INITIALIZATION COMPLETE" << std::endl;
   }
 
-  // main/entry function; cloud_in have 4 columns(x,y,z,intesity)
+  // main/entry function; cloud_in have 4 columns(x,y,z,intensity)
   void estimateGround(const Eigen::MatrixXf &cloud, std::vector<patchwork::PointXYZ> &cloud_ground);
 
   double getHeight( )
@@ -188,7 +186,7 @@ class PatchWorkpp
 
   patchwork::Params params_;
 
-  time_t timer_;
+  // time_t timer_;
   long time_taken_;
 
   std::vector<double> update_flatness_[4];
@@ -208,7 +206,7 @@ class PatchWorkpp
   std::vector<Zone> ConcentricZoneModel_;
 
   std::vector<PointXYZ> ground_pc_, non_ground_pc_;
-  std::vector<PointXYZ> regionwise_ground_, regionwise_nonground_;
+  std::vector<PointXYZ> region_wise_ground_, region_wise_nonground_;
 
   std::vector<PointXYZ> cloud_ground_, cloud_nonground_;
 
@@ -222,7 +220,7 @@ class PatchWorkpp
   // clear all zones/rings; reset Concentric Zone Model
   void flush_patches(std::vector<Zone> &czm);
 
-  // devide points into rings and bins
+  // divide points into rings and bins
   void pc2czm(const Eigen::MatrixXf &src, std::vector<Zone> &czm);
 
   void reflected_noise_removal(Eigen::MatrixXf &cloud_in);
@@ -243,7 +241,7 @@ class PatchWorkpp
   void estimate_plane(const std::vector<PointXYZ> &ground);
 
   // (in zone index, in sector index, out ground, out nonground)
-  void extract_piecewiseground(
+  void extract_piece_wise_ground(
       const int zone_idx, const std::vector<PointXYZ> &src,
       std::vector<PointXYZ> &dst,
       std::vector<PointXYZ> &non_ground_dst);

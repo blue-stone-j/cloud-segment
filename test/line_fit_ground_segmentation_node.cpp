@@ -1,6 +1,6 @@
 #include <pcl/io/pcd_io.h>
 
-#include "linefit_ground_segmentation.h"
+#include "line_fit_ground_segmentation.h"
 
 int main( )
 {

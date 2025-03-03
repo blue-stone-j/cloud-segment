@@ -1,15 +1,10 @@
-#ifndef LINEFIT_GROUND_SEGMENTATION_H
-#define LINEFIT_GROUND_SEGMENTATION_H
+#ifndef LINE_FIT_GROUND_SEGMENTATION_H
+#define LINE_FIT_GROUND_SEGMENTATION_H
 
 #include <atomic>
 #include <list>
-#include <map>
 #include <mutex>
-#include <chrono>
 #include <cmath>
-#include <memory>
-#include <thread>
-#include <limits>
 
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -157,7 +152,7 @@ typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 
 typedef std::pair<pcl::PointXYZ, pcl::PointXYZ> PointLine; // two ends of a line segment
 
-/*从linefit_ground_segmentation_ros中跳转到这里*/
+/*从line_fit_ground_segmentation_ros中跳转到这里*/
 class GroundSegmentation
 {
   const GroundSegmentationParams params_;
@@ -182,10 +177,10 @@ class GroundSegmentation
                            const unsigned int &end_index,
                            std::vector<int> *segmentation);
 
-  /*插入点云; devide points into bins and segments*/
+  /*插入点云; divide points into bins and segments*/
   void insertPoints(const PointCloud &cloud);
 
-  /*插入线程; devide points into bins and segments*/
+  /*插入线程; divide points into bins and segments*/
   void insertionThread(const PointCloud &cloud, const size_t start_index, const size_t end_index);
 
   /*获得最小的z点*/

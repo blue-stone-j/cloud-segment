@@ -28,11 +28,11 @@ class GroundFilter
  private:
   std::string point_topic_;
   std::string no_ground_topic, ground_topic;
-  int sensor_model_;      // ring of lidar
-  double sensor_height_;  // height from the ground
-  double max_slope_;      // larger slope will reduce accuracy
-  double vertical_thres_; // threshold to judge whether is vertical
-  bool floor_removal_;    // whether remove floor/ground
+  int sensor_model_;          // ring of lidar
+  double sensor_height_;      // height from the ground
+  double max_slope_;          // larger slope will reduce accuracy
+  double vertical_threshold_; // threshold to judge whether is vertical
+  bool floor_removal_;        // whether remove floor/ground
 
   int vertical_res_;          // num of ring
   int horizontal_res_;        // num of column

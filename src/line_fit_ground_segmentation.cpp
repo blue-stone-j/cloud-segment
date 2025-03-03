@@ -1,4 +1,7 @@
-#include "linefit_ground_segmentation.h"
+
+#include <thread>
+
+#include "line_fit_ground_segmentation.h"
 
 /************* Bin *************/
 
@@ -155,7 +158,7 @@ void Segment::fitSegmentLines( )
         }
       }
     } // endif: have processed if haspoint
-  } // endfor: have traversed bins
+  }   // endfor: have traversed bins
   // Add last line.
   /*添加最后一条线*/
   if (current_line_points.size( ) > 2)
@@ -171,7 +174,7 @@ Segment::Line Segment::localLineToLine(const LocalLine &local_line, const std::l
   Line line;
   const double first_d  = line_points.front( ).d;
   const double second_d = line_points.back( ).d;
-  /*跟去前面的值来进行locl_line的处理*/
+  /*跟去前面的值来进行local_line的处理*/
   const double first_z  = local_line.first * first_d + local_line.second;
   const double second_z = local_line.first * second_d + local_line.second;
 
@@ -288,7 +291,7 @@ void GroundSegmentation::estimateGround(const PointCloud &cloud, std::vector<int
   bin_index_.resize(cloud.size( ));
   segment_coordinates_.resize(cloud.size( ));
 
-  /*插入点云数据; devide points into bins and segments*/
+  /*插入点云数据; divide points into bins and segments*/
   insertPoints(cloud);
   /*定义地面点的线的参数*/
   std::list<PointLine> lines;
@@ -387,7 +390,7 @@ void GroundSegmentation::assignCluster(std::vector<int> *segmentation)
     const unsigned int start_index = cloud_size / params_.n_threads * i;
     const unsigned int end_index   = cloud_size / params_.n_threads * (i + 1);
     thread_vec[i]                  = std::thread(&GroundSegmentation::assignClusterThread, this,
-                                                 start_index, end_index, segmentation);
+                                start_index, end_index, segmentation);
   }
   for (auto it = thread_vec.begin( ); it != thread_vec.end( ); ++it)
   {
@@ -456,7 +459,7 @@ void GroundSegmentation::assignClusterThread(const unsigned int &start_index,
         segmentation->at(i) = 1;
       }
     } // endif: have processed this bin
-  } // endfor: have processed every bin
+  }   // endfor: have processed every bin
 }
 
 /*获取最小z点的点云数据*/
@@ -464,13 +467,13 @@ void GroundSegmentation::getMinZPoints(PointCloud *out_cloud)
 {
   /*得到分割的步长，以及bins的步长*/
   const double seg_step = 2 * M_PI / params_.n_segments;
-  const double bin_step = (sqrt(params_.r_max_square) - sqrt(params_.r_min_square)) / params_.n_bins;
+  // const double bin_step = (sqrt(params_.r_max_square) - sqrt(params_.r_min_square)) / params_.n_bins;
   /*得到最小的r*/
-  const double r_min = sqrt(params_.r_min_square);
-  double angle       = -M_PI + seg_step / 2;
+  // const double r_min = sqrt(params_.r_min_square);
+  double angle = -M_PI + seg_step / 2;
   for (auto seg_iter = segments_.begin( ); seg_iter != segments_.end( ); ++seg_iter)
   {
-    double dist = r_min + bin_step / 2;
+    // double dist = r_min + bin_step / 2;
     for (auto bin_iter = seg_iter->begin( ); bin_iter != seg_iter->end( ); ++bin_iter)
     {
       pcl::PointXYZ point;
@@ -485,7 +488,7 @@ void GroundSegmentation::getMinZPoints(PointCloud *out_cloud)
         out_cloud->push_back(point);
       }
       /*按照步长增加dist*/
-      dist += bin_step;
+      // dist += bin_step;
     } // endfor: bins
     /*按照划分的步长进行角度的增加*/
     angle += seg_step;

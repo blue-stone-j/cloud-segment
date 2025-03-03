@@ -1,3 +1,6 @@
+
+// #include <iostream>
+#include <algorithm>
 #include "ray_ground_filter.h"
 
 
@@ -68,7 +71,7 @@ void RayGroundFilter::ConvertXYZIToRTZColor(
     out_radial_divided_indices->at(radial_div).indices.push_back(i);
 
     out_radial_ordered_clouds->at(radial_div).push_back(new_point);
-  } // end for: devide all points into
+  } // end for: divide all points into
 
 // order radial points on each division
 #pragma omp for
@@ -80,7 +83,7 @@ void RayGroundFilter::ConvertXYZIToRTZColor(
 }
 
 /*!
- * Classifies Points in the PointCoud as Ground and Not Ground
+ * Classifies Points in the PointCloud as Ground and Not Ground
  * @param in_radial_ordered_clouds Vector of an Ordered PointsCloud ordered by radial distance from the origin
  * @param out_ground_indices Returns the indices of the points classified as ground in the original PointCloud
  * @param out_no_ground_indices Returns the indices of the points classified as not ground in the original PointCloud
@@ -158,31 +161,31 @@ void RayGroundFilter::ClassifyPointCloud(const std::vector<PointCloudXYZIRT> &in
       prev_radius = in_radial_ordered_clouds[i][j].radius;
       prev_height = in_radial_ordered_clouds[i][j].point.z;
     } // endfor: have processed all points in this radial division
-  } // endfor: have processed all radial divisions
+  }   // endfor: have processed all radial divisions
 }
 
 /*!
  * Removes the points higher than a threshold
  * @param in_cloud_ptr PointCloud to perform Clipping
  * @param in_clip_height Maximum allowed height in the cloud
- * @param out_clipped_cloud_ptr Resultung PointCloud with the points removed
+ * @param out_clipped_cloud_ptr Resulting PointCloud with the points removed
  */
 void RayGroundFilter::ClipCloud(const pcl::PointCloud<pcl::PointXYZI>::Ptr in_cloud_ptr, const double in_clip_height,
                                 pcl::PointCloud<pcl::PointXYZI>::Ptr out_clipped_cloud_ptr)
 {
   pcl::ExtractIndices<pcl::PointXYZI> extractor;
   extractor.setInputCloud(in_cloud_ptr);
-  pcl::PointIndices indices;
+  pcl::PointIndices::Ptr indices(new pcl::PointIndices);
 
 #pragma omp for
   for (size_t i = 0; i < in_cloud_ptr->points.size( ); i++)
   {
     if (in_cloud_ptr->points[i].z > in_clip_height)
     {
-      indices.indices.push_back(i);
+      indices->indices.push_back(i);
     }
   }
-  extractor.setIndices(std::make_shared<pcl::PointIndices>(indices));
+  extractor.setIndices(indices);
   extractor.setNegative(true); // true removes the indices, false leaves only the indices
   extractor.filter(*out_clipped_cloud_ptr);
 }
@@ -202,7 +205,8 @@ void RayGroundFilter::ExtractPointsIndices(const pcl::PointCloud<pcl::PointXYZI>
 {
   pcl::ExtractIndices<pcl::PointXYZI> extract_ground;
   extract_ground.setInputCloud(in_cloud_ptr);
-  extract_ground.setIndices(std::make_shared<pcl::PointIndices>(in_indices));
+  pcl::PointIndices::Ptr indices_ptr(new pcl::PointIndices(in_indices));
+  extract_ground.setIndices(indices_ptr);
 
   extract_ground.setNegative(false); // true removes the indices, false leaves only the indices
   extract_ground.filter(*out_only_indices_cloud_ptr);
@@ -222,17 +226,17 @@ void RayGroundFilter::RemovePointsUpTo(const pcl::PointCloud<pcl::PointXYZI>::Pt
 {
   pcl::ExtractIndices<pcl::PointXYZI> extractor;
   extractor.setInputCloud(in_cloud_ptr);
-  pcl::PointIndices indices;
+  pcl::PointIndices::Ptr indices(new pcl::PointIndices);
 
 #pragma omp for
   for (size_t i = 0; i < in_cloud_ptr->points.size( ); i++)
   {
     if (sqrt(in_cloud_ptr->points[i].x * in_cloud_ptr->points[i].x + in_cloud_ptr->points[i].y * in_cloud_ptr->points[i].y) < in_min_distance)
     {
-      indices.indices.push_back(i);
+      indices->indices.push_back(i);
     }
   }
-  extractor.setIndices(std::make_shared<pcl::PointIndices>(indices));
+  extractor.setIndices(indices);
   extractor.setNegative(true); // true removes the indices, false leaves only the indices
   extractor.filter(*out_filtered_cloud_ptr);
 }
