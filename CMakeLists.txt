@@ -20,33 +20,25 @@ set(common_lib "")
 list(APPEND common_lib ${PCL_LIBRARIES})
 
 # generate node for test
-add_executable(euclidean_cluster_node test/euclidean_cluster_node.cpp src/euclidean_cluster.cpp)
-target_link_libraries(euclidean_cluster_node ${common_lib})
+add_executable(euclidean_cluster_test test/euclidean_cluster_test.cpp src/euclidean_cluster.cpp)
+target_link_libraries(euclidean_cluster_test ${common_lib})
 
-add_executable(line_fit_ground_segmentation_node test/line_fit_ground_segmentation_node.cpp src/line_fit_ground_segmentation.cpp)
-target_link_libraries(line_fit_ground_segmentation_node ${common_lib})
+add_executable(line_fit_ground_segmentation_test test/line_fit_ground_segmentation_test.cpp src/line_fit_ground_segmentation.cpp)
+target_link_libraries(line_fit_ground_segmentation_test ${common_lib})
 
-add_executable(ray_ground_filter_node test/ray_ground_filter_node.cpp src/ray_ground_filter.cpp)
-target_compile_options(ray_ground_filter_node PRIVATE ${OpenMP_CXX_FLAGS})
-target_link_libraries(ray_ground_filter_node ${common_lib} ${OpenMP_CXX_FLAGS})
+add_executable(ray_ground_filter_test test/ray_ground_filter_test.cpp src/ray_ground_filter.cpp)
+target_compile_options(ray_ground_filter_test PRIVATE ${OpenMP_CXX_FLAGS})
+target_link_libraries(ray_ground_filter_test ${common_lib} ${OpenMP_CXX_FLAGS})
 
-add_executable(ring_ground_filter_node test/ring_ground_filter_node.cpp src/ring_ground_filter.cpp)
-target_link_libraries(ring_ground_filter_node ${common_lib})
+add_executable(ring_ground_filter_test test/ring_ground_filter_test.cpp src/ring_ground_filter.cpp)
+target_link_libraries(ring_ground_filter_test ${common_lib})
 
-add_executable(patchworkpp_node test/patchworkpp_node.cpp src/patchworkpp.cpp)
-target_compile_options(patchworkpp_node PRIVATE
+add_executable(patchworkpp_test test/patchworkpp_test.cpp src/patchworkpp.cpp)
+target_compile_options(patchworkpp_test PRIVATE)
+target_link_libraries(patchworkpp_test ${common_lib})
 
-  # some variables never be used, compiler will throw warn. This can depress these warns.
-  # $<$<CXX_COMPILER_ID:GNU>:-Wno-unused-variable>
-  # $<$<CXX_COMPILER_ID:Clang>:-Wno-unused-variable>
-
-  # $<$<CXX_COMPILER_ID:GNU>:-Wno-unused-but-set-variable>
-  # $<$<CXX_COMPILER_ID:Clang>:-Wno-unused-but-set-variable>
-)
-target_link_libraries(patchworkpp_node ${common_lib})
-
-add_executable(cylinder_node test/cylinder_node.cpp src/cylinder.cpp)
-target_link_libraries(cylinder_node ${common_lib})
+add_executable(cylinder_test test/cylinder_test.cpp src/cylinder.cpp)
+target_link_libraries(cylinder_test ${common_lib})
 
 # generate lib and install
 add_library(euclidean_cluster STATIC src/euclidean_cluster.cpp)
@@ -63,15 +55,7 @@ add_library(ring_ground_filter STATIC src/ring_ground_filter.cpp)
 target_link_libraries(ring_ground_filter ${common_lib})
 
 add_library(patchworkpp src/patchworkpp.cpp)
-target_compile_options(patchworkpp PRIVATE
-
-  # some variables never be used, compiler will throw warn. This can depress these warns.
-  # $<$<CXX_COMPILER_ID:GNU>:-Wno-unused-variable>
-  # $<$<CXX_COMPILER_ID:Clang>:-Wno-unused-variable>
-
-  # $<$<CXX_COMPILER_ID:GNU>:-Wno-unused-but-set-variable>
-  # $<$<CXX_COMPILER_ID:Clang>:-Wno-unused-but-set-variable>
-)
+target_compile_options(patchworkpp PRIVATE)
 target_link_libraries(patchworkpp ${common_lib})
 
 add_library(cylinder src/cylinder.cpp)
